@@ -10,7 +10,6 @@
 - **大小回滚**：基于 `rotating_file_sink_mt` 按文件大小回滚
 - **自动清理**：后台线程按保留天数定时清理过期日志目录
 - **跨平台**：Windows / Linux / macOS 通过条件编译适配
-- **便捷调用**：`set_current_log_file()` + `info/debug/warn/error()` 简化使用
 
 ---
 
@@ -25,11 +24,10 @@ graph TB
     end
 
     subgraph LoggerManager_API[LoggerManager 公共 API]
-        B1[log/debug/info/warn/error]
+        B1[log]
         B2[set_root_dir / set_rotation / set_retention_days]
         B3[enable_auto_trace / enable_warn_error_split]
-        B4[set_current_log_file / get_current_log_file]
-        B5[flush / shutdown]
+        B4[flush / shutdown]
     end
 
     subgraph 核心层[核心实现]
@@ -75,7 +73,6 @@ graph TB
 | `max_files_` | `size_t` | 回滚保留文件数（默认 5） |
 | `retention_days_` | `int` | 日志保留天数（默认 7） |
 | `trace_filename_` | `std::string` | 汇总 trace 日志文件名 |
-| `current_log_file_` | `std::string` | 当前日志文件名（便捷方法用） |
 | `auto_trace_enabled_` | `atomic<bool>` | 是否启用自动 trace 汇总 |
 | `warn_error_split_enabled_` | `atomic<bool>` | 是否启用 warn/error 分离 |
 | `is_shutdown_` | `atomic<bool>` | 是否已关闭 |
@@ -336,9 +333,8 @@ sequenceDiagram
 
     App->>LM: set_root_dir("./logs")
     App->>LM: enable_auto_trace(true)
-    App->>LM: set_current_log_file("app")
 
-    App->>LM: info("hello {}", "world")
+    App->>LM: log("app", Level::INFO, "hello {}", "world")
     LM->>LM: format_message
     LM->>LM: 构建 targets [app.log, trace.log]
     LM->>Cache: get_loggers_batch (read lock)

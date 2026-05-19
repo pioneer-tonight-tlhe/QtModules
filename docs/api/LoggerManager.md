@@ -53,6 +53,8 @@ auto logger = LoggerManager::getInstance();
 logger->set_root_dir("./logs");
 ```
 
+**注意**：继承自 `Singleton<T>` 模板（CRTP 模式），详见 [Singleton 模板使用文档](./Singleton.md)。
+
 ---
 
 ### 设置根目录
@@ -222,72 +224,6 @@ LoggerManager::getInstance()->log("debug", Level::INFO, "hello world {} {}!", "s
 
 ---
 
-### 设置当前日志文件名
-
-```cpp
-void set_current_log_file(const std::string& file_name);
-```
-
-**说明**：设置当前日志文件名，配合 `debug()`、`info()`、`warn()`、`error()` 便捷方法使用。设置后，便捷方法将自动写入到该文件。该值存储在内部成员变量中，线程安全。
-
-**参数**：
-- `file_name`：日志文件名（会自动添加 `.log` 后缀，默认：`"default.log"`）
-
-**示例**：
-```cpp
-LoggerManager::getInstance()->set_current_log_file("app");
-```
-
----
-
-### 获取当前日志文件名
-
-```cpp
-std::string get_current_log_file();
-```
-
-**说明**：获取当前设置的日志文件名（已规范化，包含 `.log` 后缀）。
-
-**返回值**：当前日志文件名字符串
-
-**示例**：
-```cpp
-std::string current = LoggerManager::getInstance()->get_current_log_file();
-// 输出: "app.log"
-```
-
----
-
-### 便捷日志方法（debug / info / warn / error）
-
-```cpp
-template<typename... Args> void debug(const std::string& fmt, Args&&... args);
-template<typename... Args> void info (const std::string& fmt, Args&&... args);
-template<typename... Args> void warn (const std::string& fmt, Args&&... args);
-template<typename... Args> void error(const std::string& fmt, Args&&... args);
-```
-
-**说明**：四种常用级别的便捷写日志方法，**不需要传入文件名和级别参数**。这些方法会使用 `set_current_log_file()` 设置的当前日志文件名作为目标文件。
-
-**参数**：
-- `fmt`：格式化字符串（使用 `{}` 占位符）
-- `args...`：格式化参数
-
-**前置条件**：建议先调用 `set_current_log_file()` 设置当前日志文件名；如果未设置，则默认写入 `default.log`。
-
-**示例**：
-```cpp
-auto logger = LoggerManager::getInstance();
-logger->set_current_log_file("app");          // 先设置当前日志文件
-
-logger->debug("调试信息：{}", "some value");   // 写入 app.log（DEBUG）
-logger->info("程序启动");                      // 写入 app.log（INFO）
-logger->warn("警告：{}", "磁盘空间不足");      // 写入 app.log（WARN）
-logger->error("错误：{}", "文件打开失败");     // 写入 app.log（ERROR）
-```
-
----
-
 ## 使用示例
 
 ### 基础使用（核心 log 方法）
@@ -304,38 +240,6 @@ int main() {
     logger->log("debug", Level::DEBUG, "调试信息：{}", "some value");
     logger->log("debug", Level::WARN, "警告：{}", "磁盘空间不足");
     logger->log("debug", Level::ERROR, "错误：{}", "文件打开失败");
-    
-    // 清理
-    logger->shutdown();
-    
-    return 0;
-}
-```
-
-### 便捷方法使用（推荐）
-
-```cpp
-#include "loggermanager.h"
-
-int main() {
-    // 获取单例
-    auto logger = LoggerManager::getInstance();
-    
-    // 设置当前日志文件名（仅需设置一次）
-    logger->set_current_log_file("app");
-    
-    // 使用便捷方法写日志，无需重复传文件名和级别
-    logger->info("程序启动");
-    logger->debug("调试信息：{}", "some value");
-    logger->warn("警告：{}", "磁盘空间不足");
-    logger->error("错误：{}", "文件打开失败");
-    
-    // 切换到其他日志文件
-    logger->set_current_log_file("network");
-    logger->info("连接成功，IP={}", "192.168.1.1");
-    
-    // 获取当前日志文件名
-    std::string current = logger->get_current_log_file();  // "network.log"
     
     // 清理
     logger->shutdown();
