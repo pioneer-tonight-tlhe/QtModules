@@ -1,17 +1,5 @@
-#ifdef _WIN32
-// 排除 RPC 定义，避免与 std::byte 冲突
-// 必须在任何包含 windows.h 的头文件之前定义
-#define NO_RPC
-// 减少 windows.h 的内容，避免更多冲突
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#endif
-
 #ifndef LOGGERMANAGER_H
 #define LOGGERMANAGER_H
-
-// 先包含 cstddef 确保 std::byte 被定义
-#include <cstddef>
 
 #include <string>
 #include <mutex>
@@ -26,19 +14,6 @@
 #include <vector>
 #include <condition_variable>
 
-// 在包含 spdlog 之前再次确保宏定义
-#ifdef _WIN32
-#ifndef NO_RPC
-#define NO_RPC
-#endif
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#endif
-
 #include <spdlog/spdlog.h>
 #include <spdlog/async.h>
 #include <spdlog/sinks/rotating_file_sink.h>
@@ -48,10 +23,6 @@
 #ifdef _WIN32
 #include <direct.h>
 #include <windows.h>
-// 取消 Windows 的 byte 定义，避免与 std::byte 冲突
-#ifdef byte
-#undef byte
-#endif
 #else
 #include <sys/stat.h>
 #include <dirent.h>
