@@ -1,5 +1,9 @@
 # LoggerManager 实现文档
 
+**开发信息**：
+- 开发人员：Simon
+- 开发时间：2026-05-19
+
 ## 1. 概述
 
 `LoggerManager` 是基于 [spdlog](https://github.com/gabime/spdlog) 封装的高性能、线程安全日志管理器。核心目标：

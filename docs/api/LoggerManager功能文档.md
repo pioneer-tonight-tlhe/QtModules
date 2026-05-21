@@ -1,5 +1,9 @@
 # LoggerManager API 文档
 
+**开发信息**：
+- 开发人员：Simon
+- 开发时间：2026-05-19
+
 ## 概述
 
 `LoggerManager` 是一个基于 spdlog 的高性能线程安全日志管理器，支持异步日志写入、日志回滚、自动清理等功能。该类继承自通用 `Singleton<T>` 模板（CRTP 模式），采用基于 `std::call_once` 的线程安全单例实现，适用于高并发场景。
